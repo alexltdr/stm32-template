@@ -6,4 +6,4 @@ it include:
     - linked script file.
     - cmsis 
     - hal whenever a fonction is too hard to code.
-
+    - a main.c with the include. 
