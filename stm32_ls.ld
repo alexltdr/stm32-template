@@ -2,7 +2,7 @@ ENTRY(Reset_Handler)
 
 MEMORY {
 	FLASH(rx):ORIGIN =0x08000000,LENGTH =512K
-	SRAM(rwx):ORIGIN =0x02000000,LENGTH =128K
+	SRAM(rwx):ORIGIN =0x20000000,LENGTH =96K
 }
 
 _estack = ORIGIN(SRAM) + LENGTH(SRAM);
@@ -15,8 +15,8 @@ SECTIONS
 	{
     	. = ALIGN(4);
     	*(.isr_vector_tbl)
-    	*(.text)
-    	*(.rodata)
+    	*(.text*)
+    	*(.rodata*)
     	. = ALIGN(4);
     	_etext = .;
 	} > FLASH
@@ -25,17 +25,23 @@ SECTIONS
 	{
     	. = ALIGN(4);
     	_sdata = .;
-    	*(.data)
+    	*(.data*)
     	. = ALIGN(4);
     	_edata = .;
 	} > SRAM AT> FLASH
 
 	.bss :
 	{
-    	. = ALIGN(4);
     	_sbss = .;
+    	__bss_start__ = _sbss;   /* ajout */
     	*(.bss)
+    	*(.bss.*)
+    	*(COMMON)
     	. = ALIGN(4);
     	_ebss = .;
+    	__bss_end__ = _ebss;     /* ajout */
+    	. = ALIGN(4);
+    	end = .;                 /* ajout */
+    	__end__ = .;             /* ajout */
 	} > SRAM
 }

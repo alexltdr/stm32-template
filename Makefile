@@ -1,17 +1,23 @@
-CC = arm-none-eabi-gcc
-CFLAGS = -c -mcpu=cortex-m4 -mthumb -std=gnu11
-LDFLAGS = -nostdlib -T stm32_ls.ld -Wl,-Map=project.map
+CC      = arm-none-eabi-gcc
+MACH    = cortex-m4
+ARCH    = -mcpu=$(MACH) -mthumb -mfloat-abi=soft
 
-final : project.elf
+CFLAGS  = -c $(ARCH) -std=gnu11 -Wall -O0 -g
+LDFLAGS = $(ARCH) --specs=rdimon.specs -T stm32_ls.ld -Wl,-Map=project.map
 
-main.o : main.c
-	$(CC) $(CFLAGS) $^ -o $@
+OBJS = main.o stm32f401_startup.o
 
-stm32f401_startup.o : stm32f401_startup.c
-	$(CC) $(CFLAGS) $^ -o $@
+all: project.elf
 
-project.elf : main.o stm32f401_startup.o
+%.o: %.c
+	$(CC) $(CFLAGS) $< -o $@
+
+project.elf: $(OBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
 
-clean :
+clean:
 	rm -f *.o *.elf *.map
+
+flash: 
+	openocd -f board/st_nucleo_f4.cfg -c "program project.elf verify reset exit"
+.PHONY: all clean
