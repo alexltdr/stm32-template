@@ -7,7 +7,6 @@ extern uint32_t _edata;
 extern uint32_t _sbss;
 extern uint32_t _ebss;
 
-/* Déclarations avec .type pour TOUTES les fonctions */
 __asm__(".type Reset_Handler, %function");
 __asm__(".type Default_Handler, %function");
 __asm__(".type main, %function");
@@ -16,18 +15,30 @@ void Reset_Handler(void);
 void Default_Handler(void);
 int main(void);
 
-/* Les handlers faibles : NE PAS mettre .type ici directement,
-   car ce sont des alias. On les laisse au linker. */
-void NMI_Handler(void) __attribute__((weak, alias("Default_Handler")));
-void HardFault_Handler(void) __attribute__((weak, alias("Default_Handler")));
-void MemManage_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void NMI_Handler(void)        __attribute__((weak, alias("Default_Handler")));
+void HardFault_Handler(void)  __attribute__((weak, alias("Default_Handler")));
+void MemManage_Handler(void)  __attribute__((weak, alias("Default_Handler")));
+void BusFault_Handler(void)   __attribute__((weak, alias("Default_Handler")));
+void UsageFault_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void SVC_Handler(void)        __attribute__((weak, alias("Default_Handler")));
+void DebugMon_Handler(void)   __attribute__((weak, alias("Default_Handler")));
+void PendSV_Handler(void)     __attribute__((weak, alias("Default_Handler")));
+void SysTick_Handler(void)    __attribute__((weak, alias("Default_Handler")));
 
 uint32_t vector_tbl[] __attribute__((section(".isr_vector_tbl"))) = {
-    (uint32_t)&_estack,
-    (uint32_t)&Reset_Handler,
-    (uint32_t)&NMI_Handler,
-    (uint32_t)&HardFault_Handler,
-    (uint32_t)&MemManage_Handler,
+    (uint32_t)&_estack,             /* 0  : pile */
+    (uint32_t)&Reset_Handler,       /* 1  */
+    (uint32_t)&NMI_Handler,         /* 2  */
+    (uint32_t)&HardFault_Handler,   /* 3  */
+    (uint32_t)&MemManage_Handler,   /* 4  */
+    (uint32_t)&BusFault_Handler,    /* 5  */
+    (uint32_t)&UsageFault_Handler,  /* 6  */
+    0, 0, 0, 0,                     /* 7-10 : réservés */
+    (uint32_t)&SVC_Handler,         /* 11 */
+    (uint32_t)&DebugMon_Handler,    /* 12 */
+    0,                              /* 13 : réservé */
+    (uint32_t)&PendSV_Handler,      /* 14 */
+    (uint32_t)&SysTick_Handler,     /* 15 : SysTick */
 };
 
 void Default_Handler(void) {
